@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     Rigidbody2D rb;
+    float speed = 5;
+    FacingDirection facing;
     public enum FacingDirection
     {
         left, right
@@ -23,16 +25,26 @@ public class PlayerController : MonoBehaviour
         //manage the actual movement of the character.
         Vector2 playerInput = new Vector2();
         MovementUpdate(playerInput);
+        //Debug.Log("moving" + IsWalking());
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
-
+        playerInput.x = Input.GetAxis("Horizontal");
+        rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
     }
 
     public bool IsWalking()
     {
-        return false;
+        if (rb.velocity.magnitude > 0.001f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+            
     }
     public bool IsGrounded()
     {
@@ -41,6 +53,15 @@ public class PlayerController : MonoBehaviour
 
     public FacingDirection GetFacingDirection()
     {
-        return FacingDirection.left;
+        
+        if (rb.velocity.x < 0)
+        {
+            facing = FacingDirection.left;
+        }
+        if(rb.velocity.x > 0)
+        {
+            facing = FacingDirection.right;
+        }
+        return facing;
     }
 }
