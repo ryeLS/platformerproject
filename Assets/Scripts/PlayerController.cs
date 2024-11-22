@@ -23,9 +23,12 @@ public class PlayerController : MonoBehaviour
     {
         //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
         //manage the actual movement of the character.
+
         Vector2 playerInput = new Vector2();
         MovementUpdate(playerInput);
+
         //Debug.Log("moving" + IsWalking());
+        //Debug.Log("grounded" + IsGrounded());
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -48,7 +51,15 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        return true;
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 0.01f);
+        if (hit)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public FacingDirection GetFacingDirection()
