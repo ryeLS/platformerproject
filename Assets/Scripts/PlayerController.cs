@@ -7,8 +7,10 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     float speed = 5;
     FacingDirection facing;
-    float apexHeight = 1;
-    float apexTime = 0.5f;
+    float apexHeight = 4;
+    float apexTime = 5f;
+    bool didWeJump = false;
+    float gravity;
     public enum FacingDirection
     {
         left, right
@@ -18,15 +20,27 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        
     }
-
+    private void Update()
+    {
+        if (IsGrounded() && Input.GetKeyDown(KeyCode.Space))
+        {
+            didWeJump = true;
+        }
+        
+    }
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
         //manage the actual movement of the character.
 
         Vector2 playerInput = new Vector2();
+
+        gravity = 12 * apexHeight / Mathf.Pow(apexTime, 2);
+        rb.AddForce(new Vector2(0, -gravity));
+
         MovementUpdate(playerInput);
 
         //Debug.Log("moving" + IsWalking());
@@ -38,15 +52,17 @@ public class PlayerController : MonoBehaviour
         playerInput.x = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
 
-        if(IsGrounded() && Input.GetKeyDown(KeyCode.Space))
+        if(didWeJump)
         {
             float currentTime = Time.deltaTime;
 
-            float gravity = 12 * apexHeight / Mathf.Pow(apexTime, 2);
+            Debug.Log("gravity:"+ gravity);
             float jumpVelocity = 2 * apexHeight / apexTime;
 
             float velocity = gravity * currentTime + jumpVelocity;
             rb.velocity = new Vector2(rb.position.x, velocity);
+
+            didWeJump = false;
         }
     }
 
