@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     float speed = 5;
     FacingDirection facing;
+    float apexHeight = 1;
+    float apexTime = 0.5f;
     public enum FacingDirection
     {
         left, right
@@ -35,6 +37,17 @@ public class PlayerController : MonoBehaviour
     {
         playerInput.x = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
+
+        if(IsGrounded() && Input.GetKeyDown(KeyCode.Space))
+        {
+            float currentTime = Time.deltaTime;
+
+            float gravity = 12 * apexHeight / Mathf.Pow(apexTime, 2);
+            float jumpVelocity = 2 * apexHeight / apexTime;
+
+            float velocity = gravity * currentTime + jumpVelocity;
+            rb.velocity = new Vector2(rb.position.x, velocity);
+        }
     }
 
     public bool IsWalking()
