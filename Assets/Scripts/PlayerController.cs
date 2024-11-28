@@ -7,8 +7,8 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     float speed = 5;
     FacingDirection facing;
-    float apexHeight = 4;
-    float apexTime = 5f;
+    float apexHeight = 2;
+    float apexTime = 1f;
     bool didWeJump = false;
     float gravity;
     public enum FacingDirection
@@ -38,8 +38,8 @@ public class PlayerController : MonoBehaviour
 
         Vector2 playerInput = new Vector2();
 
-        gravity = 12 * apexHeight / Mathf.Pow(apexTime, 2);
-        rb.AddForce(new Vector2(0, -gravity));
+        gravity = -2 * apexHeight / Mathf.Pow(apexTime, 2);
+        rb.AddForce(new Vector2(0, gravity));
 
         MovementUpdate(playerInput);
 
