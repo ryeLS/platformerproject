@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -8,7 +9,7 @@ public class PlayerController : MonoBehaviour
     float speed = 5;
     FacingDirection facing;
     float apexHeight = 2;
-    float apexTime = 1f;
+    float apexTime = 0.5f;
     bool didWeJump = false;
     float gravity;
     public enum FacingDirection
