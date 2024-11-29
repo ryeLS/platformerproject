@@ -12,13 +12,14 @@ public class PlayerVisuals : MonoBehaviour
     public SpriteRenderer bodyRenderer;
     public PlayerController playerController;
 
-    private int isWalkingHash, isGroundedHash;
+    private int isWalkingHash, isGroundedHash, OnDeathHash;
 
     // Start is called before the first frame update
     void Start()
     {
         isWalkingHash = Animator.StringToHash("IsWalking");
         isGroundedHash = Animator.StringToHash("IsGrounded");
+        OnDeathHash = Animator.StringToHash("OnDeath");
     }
 
     // Update is called once per frame
@@ -30,8 +31,32 @@ public class PlayerVisuals : MonoBehaviour
     //It is not recommended to make changes to the functionality of this code for the W10 journal.
     private void VisualsUpdate()
     {
+        if(playerController.perviousstate != playerController.currentstate)
+        {
+            switch (playerController.currentstate)
+            {
+                case PlayerController.CharacterState.idle:
+                    
+                    break;
+                case PlayerController.CharacterState.walk:
+
+                    break;
+                case PlayerController.CharacterState.jump:
+
+                    break;
+                case PlayerController.CharacterState.die:
+
+                    break;
+            }
+        }
+
         animator.SetBool(isWalkingHash, playerController.IsWalking());
         animator.SetBool(isGroundedHash, playerController.IsGrounded());
+
+        if (playerController.OnDeath())
+        {
+            animator.SetTrigger(OnDeathHash);
+        }
         switch (playerController.GetFacingDirection())
         {
             case PlayerController.FacingDirection.left:

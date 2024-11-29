@@ -16,10 +16,17 @@ public class PlayerController : MonoBehaviour
     float coyoteTime = 0.5f;
     float coyoteTimeTimer = 0;
     public LayerMask ground;
+    int currentHealth = 5;
     public enum FacingDirection
     {
         left, right
     }
+    public enum CharacterState
+    {
+        idle, walk, jump, die
+    }
+    public CharacterState currentstate;
+    public CharacterState perviousstate;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +36,49 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
+        perviousstate = currentstate;
+
+        if (OnDeath())
+        {
+            currentstate = CharacterState.die;
+        }
+
+        switch (currentstate)
+        {
+            case CharacterState.idle:
+                if (IsWalking())
+                {
+                    currentstate = CharacterState.walk;
+                }
+                if (!IsGrounded())
+                {
+                    currentstate = CharacterState.jump;
+                }
+                break;
+
+            case CharacterState.walk:
+                if (!IsWalking())
+                {
+                    currentstate = CharacterState.idle;
+                }
+                if (!IsGrounded())
+                {
+                    currentstate = CharacterState.jump;
+                }
+                break;
+            case CharacterState.jump:
+                if (IsWalking())
+                {
+                    currentstate = CharacterState.walk;
+                }
+                else
+                {
+                    currentstate = CharacterState.idle;
+                }
+                break;
+
+        }
+
         if (IsGrounded())
         {
             coyoteTimeTimer = 0;
@@ -119,5 +169,13 @@ public class PlayerController : MonoBehaviour
             facing = FacingDirection.right;
         }
         return facing;
+    }
+    public bool OnDeath()
+    {
+        return currentHealth <= 0;
+    }
+    public void OnDeathAnimationComplete()
+    {
+        gameObject.SetActive(false);
     }
 }
