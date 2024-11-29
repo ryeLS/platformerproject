@@ -12,6 +12,10 @@ public class PlayerController : MonoBehaviour
     float apexTime = 0.5f;
     bool didWeJump = false;
     float gravity;
+    public float terminalSpeed = -30;
+    float coyoteTime = 0.5f;
+    float coyoteTimeTimer = 0;
+    public LayerMask ground;
     public enum FacingDirection
     {
         left, right
@@ -25,9 +29,18 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        if (IsGrounded() && Input.GetKeyDown(KeyCode.Space))
+        if (IsGrounded())
+        {
+            coyoteTimeTimer = 0;
+        }
+        else
+        {
+            coyoteTimeTimer += Time.deltaTime;
+        }
+        if (coyoteTimeTimer < coyoteTime  && Input.GetKeyDown(KeyCode.Space))
         {
             didWeJump = true;
+            coyoteTimeTimer = 0;
         }
         
     }
@@ -44,6 +57,7 @@ public class PlayerController : MonoBehaviour
 
         MovementUpdate(playerInput);
 
+        Debug.Log("velocity=" + rb.velocity.y);
         //Debug.Log("moving" + IsWalking());
         //Debug.Log("grounded" + IsGrounded());
     }
@@ -65,11 +79,16 @@ public class PlayerController : MonoBehaviour
 
             didWeJump = false;
         }
+
+        if (rb.velocity.y < terminalSpeed)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, terminalSpeed);
+        }
     }
 
     public bool IsWalking()
     {
-        if (rb.velocity.magnitude > 0.001f)
+        if (rb.velocity.magnitude > 0.1f)
         {
             return true;
         }
@@ -81,15 +100,11 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 0.01f);
-        if (hit)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 1f, ground);
+        Debug.DrawRay(rb.position, Vector2.down * 1f);
+
+        return hit.collider != null;
+        
     }
 
     public FacingDirection GetFacingDirection()
