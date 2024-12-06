@@ -53,10 +53,10 @@ public class PlayerVisuals : MonoBehaviour
         animator.SetBool(isWalkingHash, playerController.IsWalking());
         animator.SetBool(isGroundedHash, playerController.IsGrounded());
 
-        if (playerController.OnDeath())
-        {
-            animator.SetTrigger(OnDeathHash);
-        }
+        //if (playerController.OnDeath())
+        //{
+        //    animator.SetTrigger(OnDeathHash);
+        //}
         switch (playerController.GetFacingDirection())
         {
             case PlayerController.FacingDirection.left:
