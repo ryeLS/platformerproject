@@ -45,12 +45,12 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        perviousstate = currentstate;
+        //perviousstate = currentstate;
 
-        if (OnDeath())
-        {
-            currentstate = CharacterState.die;
-        }
+        //if (OnDeath())
+        //{
+        //    currentstate = CharacterState.die;
+        //}
 
         switch (currentstate)
         {
@@ -217,8 +217,8 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 0.6f, ground);
-        Debug.DrawRay(rb.position, Vector2.down * 0.6f);
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 0.2f, ground);
+        Debug.DrawRay(rb.position, Vector2.down * 0.01f);
 
         return hit.collider != null;
         
