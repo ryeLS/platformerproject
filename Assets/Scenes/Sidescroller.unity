@@ -1697,6 +1697,9 @@ MonoBehaviour:
   ground:
     serializedVersion: 2
     m_Bits: 8
+  dashspeed: 10
+  dashTimer: 0
+  dashCooldown: 0
 --- !u!4 &1433354315
 Transform:
   m_ObjectHideFlags: 0

@@ -16,6 +16,16 @@ public class PlayerController : MonoBehaviour
     float coyoteTime = 0.5f;
     float coyoteTimeTimer = 0;
     public LayerMask ground;
+
+    public float dashspeed = 1.5f;
+    bool didWeDash = false;
+    bool endDash = false;
+    bool didWeShortJump = false;
+    public float dashTimer = 0f;
+    public float dashCooldown = 5f;
+    float bounceHeight = 0.5f;
+    float bounceTime = 0.2f;
+    //bool recoil = false;
     public enum FacingDirection
     {
         left, right
@@ -42,7 +52,22 @@ public class PlayerController : MonoBehaviour
             didWeJump = true;
             coyoteTimeTimer = 0;
         }
-        
+        if (Input.GetKeyUp(KeyCode.Space) && rb.velocity.y > 0)
+        {
+            didWeShortJump = true;
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && dashTimer == 0f)
+        {
+            didWeDash = true;
+            
+            
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift) || dashTimer >= 0.2f)
+        {
+            endDash = true;
+            
+        }
+
     }
     // Update is called once per frame
     void FixedUpdate()
@@ -56,10 +81,12 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(new Vector2(0, gravity));
 
         MovementUpdate(playerInput);
-
-        Debug.Log("velocity=" + rb.velocity.y);
+        //Debug.Log("dashtime" + dashTimer);
+        //Debug.Log("velocity=" + rb.velocity.y);
         //Debug.Log("moving" + IsWalking());
         //Debug.Log("grounded" + IsGrounded());
+        //Debug.Log("right hit" + RightCollision());
+        //Debug.Log("left hit" + LeftCollision());
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -67,11 +94,29 @@ public class PlayerController : MonoBehaviour
         playerInput.x = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
 
+        if (didWeDash)
+        {
+            dashTimer += Time.deltaTime;
+            
+            float savedVelocity = rb.velocity.x;
+            //rb.velocity =new Vector2(rb.velocity.x * dashspeed, rb.velocity.x);
+            
+            if(facing == FacingDirection.left)
+            {
+                rb.AddForce(Vector2.left * dashspeed, ForceMode2D.Impulse);
+                Debug.Log("hehe");
+            }
+            if (facing == FacingDirection.right)
+            {
+                rb.AddForce(Vector2.right * dashspeed, ForceMode2D.Impulse);
+            }
+            StartCoroutine(endingDash(savedVelocity));
+        }
+
         if(didWeJump)
         {
             float currentTime = Time.deltaTime;
 
-            Debug.Log("gravity:"+ gravity);
             float jumpVelocity = 2 * apexHeight / apexTime;
 
             float velocity = gravity * currentTime + jumpVelocity;
@@ -79,11 +124,34 @@ public class PlayerController : MonoBehaviour
 
             didWeJump = false;
         }
+        //high jump and low jump mechanic
+        if (didWeShortJump)
+        {
+            rb.velocity = new Vector2(rb.position.x, rb.velocity.y * 0.7f);
+            Debug.Log("LongJump");
+            didWeShortJump = false;
+        }
 
         if (rb.velocity.y < terminalSpeed)
         {
             rb.velocity = new Vector2(rb.velocity.x, terminalSpeed);
         }
+        //dashing mechanic
+        if (RightCollision() && didWeDash)
+        {
+            rb.velocity = Vector2.zero;
+            rb.AddForce(Vector2.left * 100);
+            Debug.Log("boing");
+        }
+        if (LeftCollision() && didWeDash)
+        {
+            rb.velocity = Vector2.zero;
+            rb.AddForce(Vector2.right * 100);
+            Debug.Log("boing");
+        }
+        //bounce after terminal speed mechanic
+        StartCoroutine(Bounce());
+        
     }
 
     public bool IsWalking()
@@ -100,8 +168,8 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 1f, ground);
-        Debug.DrawRay(rb.position, Vector2.down * 1f);
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 0.6f, ground);
+        Debug.DrawRay(rb.position, Vector2.down * 0.6f);
 
         return hit.collider != null;
         
@@ -119,5 +187,48 @@ public class PlayerController : MonoBehaviour
             facing = FacingDirection.right;
         }
         return facing;
+    }
+    public bool RightCollision()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.right, 0.6f, ground);
+        Debug.DrawRay(rb.position, Vector2.right * 0.6f);
+        return hit.collider != null;
+
+    }
+    public bool LeftCollision()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.left, 0.6f, ground);
+        Debug.DrawRay(rb.position, Vector2.left * 0.6f);
+        return hit.collider != null;
+
+    }
+    IEnumerator Bounce()
+    {
+        if (IsGrounded() && rb.velocity.y == terminalSpeed)
+        {
+            float currentTime = Time.deltaTime;
+            float prevPos = rb.position.y;
+            float jumpVelocity = 2 * bounceHeight / bounceTime;
+
+            float velocity = gravity * currentTime + jumpVelocity;
+            rb.velocity = new Vector2(rb.position.x, velocity);
+            yield return new WaitForSeconds(0.65f);
+            //rb.velocity = Vector2.zero;
+            rb.position = new Vector2(rb.position.x, prevPos);
+        }
+    }
+    IEnumerator endingDash(float savVelocity)
+    {
+        if (endDash)
+        {
+            rb.velocity = new Vector2(savVelocity, rb.velocity.y);
+            Debug.Log("enddash");
+            endDash = false;
+            didWeDash = false;
+            yield return new WaitForSeconds(dashCooldown);
+            dashTimer = 0;
+
+
+        }
     }
 }
