@@ -30,6 +30,12 @@ public class PlayerController : MonoBehaviour
     {
         left, right
     }
+    public enum CharacterState
+    {
+        idle, walk, jump, die
+    }
+    public CharacterState currentstate;
+    public CharacterState perviousstate;
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +45,49 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
+        perviousstate = currentstate;
+
+        if (OnDeath())
+        {
+            currentstate = CharacterState.die;
+        }
+
+        switch (currentstate)
+        {
+            case CharacterState.idle:
+                if (IsWalking())
+                {
+                    currentstate = CharacterState.walk;
+                }
+                if (!IsGrounded())
+                {
+                    currentstate = CharacterState.jump;
+                }
+                break;
+
+            case CharacterState.walk:
+                if (!IsWalking())
+                {
+                    currentstate = CharacterState.idle;
+                }
+                if (!IsGrounded())
+                {
+                    currentstate = CharacterState.jump;
+                }
+                break;
+            case CharacterState.jump:
+                if (IsWalking())
+                {
+                    currentstate = CharacterState.walk;
+                }
+                else
+                {
+                    currentstate = CharacterState.idle;
+                }
+                break;
+
+        }
+
         if (IsGrounded())
         {
             coyoteTimeTimer = 0;
